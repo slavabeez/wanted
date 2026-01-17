@@ -72,12 +72,13 @@ status.TextXAlignment = Enum.TextXAlignment.Center
 local function serverHop()
     status.Text = "Searching..."
     local cursor = "" 
-    local foundServer = false
-    
-    -- Цикл поиска
-    while not foundServer do
-        -- Формируем URL с учетом курсора (страницы)
-        local url = "https://games.roblox.com/v1/games/" .. PLACE_ID .. "/servers/Public?sortOrder=Asc&limit=100"
+    local allValidServers = {} -- Таблица для хранения всех найденных серверов
+    local pagesToScan = 5 -- Ограничим поиск (например, 5 страниц), чтобы не ждать вечность в популярных играх
+    local scannedPages = 0
+
+    -- Собираем серверы
+    while scannedPages < pagesToScan do
+        local url = "https://games.roblox.com/v1/games/" .. PLACE_ID .. "/servers/Public?sortOrder=Desc&limit=100"
         if cursor ~= "" then
             url = url .. "&cursor=" .. cursor
         end
@@ -87,36 +88,36 @@ local function serverHop()
         end)
         
         if success and result and result.data then
-            -- Проходимся по серверам на этой странице
             for _, server in pairs(result.data) do
-                -- Условие: не сервер, где мы сейчас, и есть место (макс игроков - 1)
+                -- Если есть место и это не наш текущий сервер
                 if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                    foundServer = true
-                    status.Text = "Hopping..."
-                    
-                    -- Попытка телепортации
-                    TeleportService:TeleportToPlaceInstance(PLACE_ID, server.id, LocalPlayer)
-                    return true
+                    table.insert(allValidServers, server.id)
                 end
             end
             
-            -- Если на этой странице нет мест, берем курсор следующей страницы
             if result.nextPageCursor then
                 cursor = result.nextPageCursor
-                status.Text = "Scanning next page..."
-                task.wait(0.1) -- Небольшая задержка, чтобы не спамить запросами
+                scannedPages = scannedPages + 1
+                status.Text = "Scanning page " .. scannedPages .. "..."
+                task.wait(0.1)
             else
-                -- Если страниц больше нет
-                status.Text = "No servers found."
-                break
+                break -- Больше страниц нет
             end
         else
-            status.Text = "HTTP Error"
-            warn("Error fetching servers: ", result)
-            task.wait(1)
+            break -- Ошибка запроса
         end
     end
-    return false
+
+    -- Выбираем случайный сервер из собранных
+    if #allValidServers > 0 then
+        local randomId = allValidServers[math.random(1, #allValidServers)]
+        status.Text = "Hopping (Random)..."
+        TeleportService:TeleportToPlaceInstance(PLACE_ID, randomId, LocalPlayer)
+        return true
+    else
+        status.Text = "No servers found"
+        return false
+    end
 end
 
 -- ... (весь код выше с GUI и функцией serverHop оставляем без изменений)
