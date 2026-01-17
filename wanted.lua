@@ -122,10 +122,18 @@ hopBtn.MouseButton1Click:Connect(function()
 end)
 
 -- Загрузка внешнего скрипта (оставляем как было у вас)
-pcall(function()
-    loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/29098fa663885d53fa8e864a605fe7bc.lua"))()
+task.spawn(function()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/29098fa663885d53fa8e864a605fe7bc.lua"))()
+    end)
+    
+    if not success then
+        warn("Ошибка запуска внешнего скрипта:", err)
+    end
 end)
 
+-- Теперь этот код выполнится сразу, не дожидаясь окончания загрузки скрипта выше
+print("Внешний скрипт запущен в фоне, продолжаем выполнение...")
 print("dada")
 -- === ИСПРАВЛЕННАЯ АВТОМАТИЧЕСКАЯ ЧАСТЬ ===
 
@@ -134,7 +142,7 @@ task.spawn(function()
     if not game:IsLoaded() then game.Loaded:Wait() end
     
     -- Настройки времени
-    local waitTime = 60 -- Время ожидания перед попыткой (в секундах)
+    local waitTime = 300 -- Время ожидания перед попыткой (в секундах)
     
     print("Auto-hop timer started: " .. waitTime .. " seconds")
     
