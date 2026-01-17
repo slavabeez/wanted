@@ -146,7 +146,7 @@ task.spawn(function()
     if not game:IsLoaded() then game.Loaded:Wait() end
     
     -- Настройки времени
-    local waitTime = 300 -- Время ожидания перед попыткой (в секундах)
+    local waitTime = 240 -- Время ожидания перед попыткой (в секундах)
     
     print("Auto-hop timer started: " .. waitTime .. " seconds")
     
