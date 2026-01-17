@@ -115,30 +115,44 @@ local function serverHop()
     return false
 end
 
+-- ... (весь код выше с GUI и функцией serverHop оставляем без изменений)
+
 hopBtn.MouseButton1Click:Connect(function()
     serverHop()
 end)
 
--- Загрузка внешнего UI (если он нужен)
+-- Загрузка внешнего скрипта (оставляем как было у вас)
 pcall(function()
     loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/29098fa663885d53fa8e864a605fe7bc.lua"))()
 end)
 
--- Автоматический реконнект через 60 секунд (если вы хотите автофарм)
+print("dada")
+-- === ИСПРАВЛЕННАЯ АВТОМАТИЧЕСКАЯ ЧАСТЬ ===
+
 task.spawn(function()
-    task.wait(300) -- Ждем 60 секунд
+    -- Ждем полной загрузки игры, чтобы скрипт не сломался на старте
+    if not game:IsLoaded() then game.Loaded:Wait() end
     
-    -- Функция для сохранения скрипта при телепорте (чтобы он работал на следующем сервере)
-    if syn and syn.queue_on_teleport then
-        syn.queue_on_teleport(game:HttpGet("https://raw.githubusercontent.com/slavabeez/wanted/refs/heads/main/wanted.lua"))
-        -- Или просто вставьте код внутрь queue_on_teleport
-    elseif queue_on_teleport then
-        -- Если executor поддерживает queue_on_teleport
-        queue_on_teleport([[
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/slavabeez/wanted/refs/heads/main/wanted.lua"))()
-        ]])
+    -- Настройки времени
+    local waitTime = 60 -- Время ожидания перед попыткой (в секундах)
+    
+    print("Auto-hop timer started: " .. waitTime .. " seconds")
+    
+    -- Бесконечный цикл, который не остановится, пока не телепортирует
+    while true do
+        task.wait(waitTime) -- Ждем указанное время
+        
+        print("Starting auto-hop...")
+        local success = serverHop()
+        
+        if success then
+            print("Teleporting...")
+            break -- Выходим из цикла, так как телепортация началась
+        else
+            print("Auto-hop failed or no server found. Retrying shortly...")
+            -- Если не вышло, ждем немного (например, 5 секунд) и пробуем снова, 
+            -- не ожидая полные 60 секунд заново (или можно поставить waitTime)
+            task.wait(5) 
+        end
     end
-    
-    print("Auto-hopping...")
-    serverHop()
 end)
