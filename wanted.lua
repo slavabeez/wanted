@@ -130,12 +130,12 @@ task.spawn(function()
     
     -- Функция для сохранения скрипта при телепорте (чтобы он работал на следующем сервере)
     if syn and syn.queue_on_teleport then
-        syn.queue_on_teleport(game:HttpGet("https://api.luarmor.net/files/v3/loaders/29098fa663885d53fa8e864a605fe7bc.lua"))
+        syn.queue_on_teleport(game:HttpGet("https://raw.githubusercontent.com/slavabeez/wanted/refs/heads/main/wanted.lua"))
         -- Или просто вставьте код внутрь queue_on_teleport
     elseif queue_on_teleport then
         -- Если executor поддерживает queue_on_teleport
         queue_on_teleport([[
-            loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/29098fa663885d53fa8e864a605fe7bc.lua"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/slavabeez/wanted/refs/heads/main/wanted.lua"))()
         ]])
     end
     
